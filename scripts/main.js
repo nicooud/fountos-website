@@ -161,7 +161,7 @@
     var container = form.parentElement;
     var input = form.querySelector('.waitlist-input');
     var button = form.querySelector('button[type="submit"], .btn');
-    var source = form.getAttribute('data-source') || 'home_hero';
+    var source = form.getAttribute('data-source'); // opt-in marker for the real flow
     var busy = false;
 
     function showError(msg) {
@@ -193,8 +193,15 @@
 
       var sb = window.fountSupabase;
       var cfg = window.fountSupabaseConfig;
-      if (!sb || !cfg) {
-        showError('Something went wrong on our side. Please try again in a moment.');
+      // The real magic-link flow runs only for forms explicitly wired with a
+      // data-source AND on a page that loaded the Supabase client. Other
+      // "Join the waitlist" CTAs across the site (feature/academy/compare/
+      // pricing pages) aren't wired to Supabase yet, so they keep their prior
+      // client-side confirmation — nothing regresses. See "Voor Nico".
+      if (!source || !sb || !cfg) {
+        container.replaceWith(waitlistBlock('You’re in.', [
+          document.createTextNode('We’ll email you twice: when there’s real news, and when it’s your turn to try Fount. That’s it — your inbox stays calm.')
+        ]));
         return;
       }
 
