@@ -134,36 +134,104 @@
     renderSwap('lens');
   }
 
-  /* ---------- waitlist: validatie + done-state (copy verbatim uit de JSX) ---------- */
+  /* ---------- waitlist: e-mail-validatie → Supabase magic-link OTP ----------
+     Een geldige submit stuurt een bevestigingsmail (signInWithOtp). De
+     inschrijving telt pas écht mee ná de klik op die link (op confirm.html,
+     waar confirm_subscriber draait). Daarom tonen we hier een "check your
+     inbox"-tussenstaat — niet "You're in.". */
+  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+  function waitlistBlock(titleText, bodyNodes) {
+    var wrap = document.createElement('div');
+    wrap.className = 'waitlist-done';
+    wrap.setAttribute('aria-live', 'polite');
+    var h = document.createElement('div');
+    h.className = 'h3';
+    h.textContent = titleText;
+    var p = document.createElement('p');
+    p.className = 'body-copy';
+    p.style.maxWidth = '460px';
+    bodyNodes.forEach(function (n) { p.appendChild(n); });
+    wrap.appendChild(h);
+    wrap.appendChild(p);
+    return wrap;
+  }
+
   Array.prototype.forEach.call(document.querySelectorAll('.waitlist-form'), function (form) {
     var container = form.parentElement;
     var input = form.querySelector('.waitlist-input');
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test((input.value || '').trim());
+    var button = form.querySelector('button[type="submit"], .btn');
+    var source = form.getAttribute('data-source') || 'home_hero';
+    var busy = false;
+
+    function showError(msg) {
+      input.classList.add('invalid');
       var err = container.querySelector('.waitlist-err');
-      if (!ok) {
-        input.classList.add('invalid');
-        if (!err) {
-          err = document.createElement('p');
-          err.className = 'waitlist-err';
-          err.textContent = "That email doesn't look complete.";
-          form.insertAdjacentElement('afterend', err);
-        }
-        return;
+      if (!err) {
+        err = document.createElement('p');
+        err.className = 'waitlist-err';
+        err.setAttribute('aria-live', 'polite');
+        form.insertAdjacentElement('afterend', err);
       }
-      var done = document.createElement('div');
-      done.className = 'waitlist-done';
-      done.setAttribute('aria-live', 'polite');
-      done.innerHTML =
-        '<div class="h3">You\'re in.</div>' +
-        '<p class="body-copy" style="max-width: 460px;">We\'ll email you twice: when there\'s real news, and when it\'s your turn to try Fount. That\'s it — your inbox stays calm.</p>';
-      container.replaceWith(done);
-    });
-    input.addEventListener('input', function () {
+      err.textContent = msg;
+    }
+    function clearError() {
       input.classList.remove('invalid');
       var err = container.querySelector('.waitlist-err');
       if (err) err.remove();
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (busy) return;
+      var email = (input.value || '').trim();
+      if (!EMAIL_RE.test(email)) {
+        showError('That address doesn’t look right. Check it and try again.');
+        return;
+      }
+      clearError();
+
+      var sb = window.fountSupabase;
+      var cfg = window.fountSupabaseConfig;
+      if (!sb || !cfg) {
+        showError('Something went wrong on our side. Please try again in a moment.');
+        return;
+      }
+
+      busy = true;
+      var label = button ? button.textContent : '';
+      if (button) { button.disabled = true; button.textContent = 'Sending…'; }
+
+      function fail(msg) {
+        busy = false;
+        if (button) { button.disabled = false; button.textContent = label; }
+        showError(msg);
+      }
+
+      sb.auth.signInWithOtp({
+        email: email,
+        options: { emailRedirectTo: cfg.confirmUrl({ source: source }) }
+      }).then(function (res) {
+        if (res && res.error) {
+          if (res.error.status === 429) {
+            fail('That’s a lot of tries. Wait a minute, then try again.');
+          } else {
+            fail('We couldn’t send the email just now. Please try again in a moment.');
+          }
+          return;
+        }
+        var strong = document.createElement('strong');
+        strong.textContent = email;
+        container.replaceWith(waitlistBlock('Check your inbox.', [
+          document.createTextNode('We sent a link to '),
+          strong,
+          document.createTextNode('. Click it to confirm and you’re on the list.')
+        ]));
+      }, function () {
+        fail('Something went wrong on our side. Please try again in a moment.');
+      });
     });
+
+    input.addEventListener('input', clearError);
   });
 })();
