@@ -34,6 +34,39 @@
     }
   };
 
+  /* Best-effort local "already did this" hints. NOT a security boundary —
+     the real guarantee is the database's unique constraints. This only lets
+     the UI say "you've already voted for this one" without a round-trip.
+     confirm.js writes these on a confirmed action; roadmap.js reads them.
+     Wrapped in try/catch because localStorage throws in some private modes. */
+  window.fountLocal = {
+    _get: function (k, fallback) {
+      try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : fallback; }
+      catch (e) { return fallback; }
+    },
+    _set: function (k, v) {
+      try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* ignore */ }
+    },
+    markWaitlist: function (email) {
+      this._set('fount:waitlist', { confirmed: true, email: email || null, at: Date.now() });
+      if (email) this._set('fount:email', email);
+    },
+    isWaitlisted: function () {
+      var w = this._get('fount:waitlist', null);
+      return !!(w && w.confirmed);
+    },
+    markVote: function (itemId, email) {
+      if (!itemId) return;
+      var v = this._get('fount:votes', []);
+      if (v.indexOf(itemId) === -1) { v.push(itemId); this._set('fount:votes', v); }
+      if (email) this._set('fount:email', email);
+    },
+    hasVoted: function (itemId) {
+      return this._get('fount:votes', []).indexOf(itemId) !== -1;
+    },
+    email: function () { return this._get('fount:email', null); }
+  };
+
   // The UMD bundle exposes window.supabase (the library namespace).
   if (!window.supabase || typeof window.supabase.createClient !== 'function') {
     // Library failed to load (offline / CDN blocked). Leave the handle null;
