@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Migrate your notes into Fount OS with an LLM — Fount OS Academy</title>
+<meta name="description" content="An optional, hands-on route: one copy-paste prompt that turns a Notion, Obsidian, Evernote or Apple Notes export into clean Fount OS markdown — on your own machine, with your originals untouched.">
+<link rel="stylesheet" href="/styles/global.css">
+
+<!-- Favicons & PWA -->
+<link rel="icon" href="/assets/brand/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/assets/brand/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/assets/brand/favicon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png">
+<link rel="manifest" href="/assets/brand/site.webmanifest">
+<meta name="theme-color" content="#FAF8F5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#15161F" media="(prefers-color-scheme: dark)">
+<link rel="canonical" href="https://fountos.com/en/academy/migrate-your-notes-to-fount-os.html">
+<!-- Open Graph / social -->
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Fount OS">
+<meta property="og:title" content="Migrate your notes into Fount OS with an LLM — Fount OS Academy">
+<meta property="og:description" content="One copy-paste prompt that turns a Notion, Obsidian, Evernote or Apple Notes export into clean Fount OS markdown — on your own machine, with your originals untouched.">
+<meta property="og:url" content="https://fountos.com/en/academy/migrate-your-notes-to-fount-os.html">
+<meta property="og:image" content="https://fountos.com/assets/brand/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Migrate your notes into Fount OS with an LLM — Fount OS Academy">
+<meta name="twitter:description" content="One copy-paste prompt that turns a Notion, Obsidian, Evernote or Apple Notes export into clean Fount OS markdown — on your own machine, with your originals untouched.">
+<meta name="twitter:image" content="https://fountos.com/assets/brand/og-image.png">
+
+<style>
+  /* Scoped styling for this guide's code + prompt blocks. Uses global tokens only. */
+  .fount-pre{font-family:var(--font-mono);font-size:13px;line-height:1.62;background:var(--surface-muted);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin:0 0 22px;overflow-x:auto;color:var(--fg);white-space:pre}
+  .prompt-card{border:1px solid var(--border);border-radius:14px;background:var(--surface-muted);margin:8px 0 14px;overflow:hidden}
+  .prompt-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border)}
+  .prompt-head .sec-label{margin:0}
+  .prompt-copy{font-family:var(--font-mono);font-size:12px;line-height:1;cursor:pointer;border:1px solid var(--border);background:var(--bg,#fff);color:var(--fg);border-radius:8px;padding:8px 13px;transition:background .15s ease,color .15s ease}
+  .prompt-copy:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .prompt-pre{margin:0;font-family:var(--font-mono);font-size:12.5px;line-height:1.68;padding:18px 20px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;color:var(--fg)}
+  .art-body .fount-pre + h2,.art-body .prompt-card + h2{margin-top:8px}
+</style>
+</head>
+<body>
+<div class="v2">
+<nav class="sitenav"><div class="sitenav-inner"><a class="wordmark" href="/en/"><svg width="26" height="20" viewBox="802 592 446 348" fill="currentColor" aria-hidden="true" style="display: block; flex-shrink: 0;"><path d="M911.706 607.386C945.676 604.068 987.294 624.662 1006.56 652.412C1026.94 681.785 1038.3 657.41 1055.38 640.153C1098.4 596.683 1165.98 595.569 1208.95 640.076C1245.97 678.423 1242.12 714.693 1241.76 763.257C1230.54 763.205 1181.49 764.377 1175.84 761.677C1149.53 749.115 1181.44 707.451 1138.87 691.493C1110.15 688.83 1099.18 712.685 1081.96 729.773C1066.97 744.872 1046.46 753.189 1025.19 752.795C987.433 752.352 971.032 734.236 948.794 707.985C929.81 685.575 893.637 686.051 888.311 720.184C886.006 734.956 890.932 760.838 870.549 762.962C850.511 764.064 829.189 763.398 808.851 763.332C808.544 719.61 805.225 684.94 835.275 647.884C855.332 623.151 880.434 610.575 911.706 607.386Z"></path><path d="M809.011 779.303C827.588 779.334 846.528 778.795 865.04 779.17C900.671 778.59 876.864 824.231 897.406 840.737C928.13 865.425 951.368 827.54 967.441 811.54C982.871 795.904 1004 787.219 1025.96 787.482C1063.28 787.834 1079.45 806.702 1101.78 832.433C1118.75 851.974 1150.19 856.61 1161.03 827.826C1168.08 809.106 1155.63 779.552 1184.98 779.208C1203.82 778.841 1222.81 779.216 1241.64 779.341C1242.04 807.207 1243.56 825.887 1236.26 853.254C1204.85 939.149 1107.26 959.48 1045.94 890.867C1039.57 883.74 1034.18 875.271 1024.05 873.42C1013.59 875.06 1001.08 894.164 992.816 902.21C972.33 921.861 944.864 932.549 916.484 931.913C887.264 931.407 861.092 918.876 841.185 897.844C806.376 861.066 808.084 825.814 809.011 779.303Z"></path></svg>Fount<span class="os-chip">OS</span></a><div class="nav-links"><a class="nav-link" href="/en/#product">Product</a><a class="nav-link active" href="/en/academy.html">Academy</a><a class="nav-link" href="/en/roadmap.html">Roadmap</a><a class="nav-link" href="/en/manifesto.html">Manifesto</a><a class="nav-link" href="/en/pricing.html">Pricing</a><a class="btn btn-sm" href="/en/#waitlist">Join the waitlist</a></div><button class="nav-menu-btn" aria-expanded="false">Menu</button></div></nav>
+
+<div class="nav-sheet" hidden=""><a class="nav-link" href="/en/#product">Product</a><a class="nav-link" href="/en/academy.html">Academy</a><a class="nav-link" href="/en/roadmap.html">Roadmap</a><a class="nav-link" href="/en/manifesto.html">Manifesto</a><a class="nav-link" href="/en/pricing.html">Pricing</a><a class="btn" href="/en/#waitlist" style="margin-top: 20px;">Join the waitlist</a></div>
+
+<main>
+<section class="sec" style="padding-top: 128px;">
+  <div class="wrap">
+    <div class="art-col">
+      <div class="reveal">
+        <div class="crumb" style="margin-bottom: 28px;"><a href="/en/academy.html">Academy</a> &nbsp;·&nbsp; Guide</div>
+        <h1 class="h1" style="font-size: clamp(32px, 4vw, 50px);">Bring your notes into Fount OS — with an AI you control.</h1>
+        <p class="art-intro" style="margin-top: 24px;">An optional, hands-on route. One prompt turns an export from Notion, Obsidian, Evernote, Apple Notes and others into clean Fount OS markdown — files you own, on your own machine, with your originals untouched.</p>
+        <div class="art-meta" style="margin-top: 20px;">Guide · about 12 minutes · Works with Claude Cowork or any capable LLM</div>
+      </div>
+
+      <div class="reveal accent-line teal" style="padding: 20px 24px; border-radius: 12px; margin-top: 36px;">
+        <p class="body-copy" style="margin: 0; color: var(--fg);">Fount OS has a built-in importer that does everything below for you — it's the easy path, and most people should start there. This guide is for when you want <em>more control</em>: your own folder shape, your own rules, and an LLM you can watch work. Same destination, hands on the wheel.</p>
+      </div>
+
+      <ul class="art-toc reveal">
+        <li><a href="#s1">What "Fount OS native" actually means</a></li>
+        <li><a href="#s2">The one rule: work on a copy</a></li>
+        <li><a href="#s3">The shape you're aiming for</a></li>
+        <li><a href="#s4">The base prompt (copy, then adapt)</a></li>
+        <li><a href="#s5">Run it in three passes</a></li>
+        <li><a href="#s6">Notes for your app</a></li>
+        <li><a href="#s7">Open it in Fount OS</a></li>
+      </ul>
+
+      <div class="art-body reveal" style="margin-top: 8px;">
+
+        <h2 id="s1">What "Fount OS native" actually means</h2>
+        <p>There's no proprietary format to convert into. "Native" here just means <strong>plain Markdown files in a folder you own</strong> — the same files Fount OS reads directly, with nothing locked in. Four things make a note native:</p>
+        <p><strong>Plain CommonMark.</strong> One <code class="mono">.md</code> file per note, UTF-8, ordinary Markdown in the body. No database, no export step later — the files <em>are</em> the data.</p>
+        <p><strong>Light YAML frontmatter.</strong> An optional block at the top of a file, between two <code class="mono">---</code> lines, holding a few fields like title, tags and dates. Fount keeps it deliberately simple: plain text, numbers, true/false, and lists — dates written as plain <code class="mono">YYYY-MM-DD</code> strings. Anything it doesn't recognise is preserved untouched, so you never lose metadata.</p>
+        <p><strong>Wikilinks.</strong> Notes point at each other with <code class="mono">[[Note title]]</code> (or <code class="mono">[[Note title|shown text]]</code>) — the same syntax Obsidian uses.</p>
+        <p><strong>Folders that mean something.</strong> Fount's typed views — the <a class="quiet-a" href="/en/features/lenses.html">Lenses</a> that show a folder as a list of people, a journal, or a set of decisions — key off <em>where a note lives</em>, not a hidden field. Put people in a people folder and the People lens lights up. Nothing moves; a Lens is a way of looking, not a container.</p>
+        <p>That's the whole target. The rest of this guide is just getting your export into that shape cleanly.</p>
+
+        <h2 id="s2">The one rule: work on a copy</h2>
+        <p>Everything else is detail. This is the rule: <strong>the LLM reads from your export and writes to a new, separate, empty folder. It never edits your originals.</strong></p>
+        <div class="accent-line amber" style="padding: 18px 22px; border-radius: 12px; margin: 6px 0 22px;">
+          <p class="body-copy" style="margin: 0; color: var(--fg);">Give the model two folders — a read-only <em>source</em> and an empty <em>destination</em> — and make sure one isn't nested inside the other. Fount's own importer refuses to run when the source and destination overlap, precisely because pointing a migration at its own folder is how people accidentally duplicate everything. The prompt below builds in the same refusal.</p>
+        </div>
+        <p>Because you keep the originals, a migration is safe to throw away. If the first pass looks wrong, delete the destination folder and run it again with a tweaked prompt. Nothing is at stake.</p>
+
+        <h2 id="s3">The shape you're aiming for</h2>
+        <p>Fount doesn't force a rigid structure — these are <strong>sensible defaults you can edit</strong>, mirroring how the app itself sorts an import. Adapt the folder names to your work; the only "special" one is the tasks file:</p>
+        <pre class="fount-pre">00-Inbox/                  anything you can't confidently classify (fallback)
+10-People/                 one file per person or company
+12-Meetings/               meeting notes
+30-Projects/               one file (or subfolder) per project
+50-Journal/Entries/        dated journal entries
+60-Decisions/              one file per decision
+80-System/Tasks/TASKS.md   a single running checklist of open tasks
+99-Archive/                anything clearly old or inactive</pre>
+        <p>If a group of notes doesn't fit, it keeps its own name as a top-level folder — don't force-fit, and don't invent extra buckets. When a note carries the right frontmatter, its Lens card gets richer. A person and a decision, for example:</p>
+        <pre class="fount-pre">---
+type: person
+name: Jane Okafor
+company: Northwind
+role: Head of Ops
+email: jane@northwind.co
+status: active
+tags: [client, priority]
+created: 2026-03-11
+---
+
+# Jane Okafor
+
+First met at the Rotterdam meetup. Owns the Northwind rollout.</pre>
+        <pre class="fount-pre">---
+type: decision
+title: Use plain markdown for all client notes
+decided: 2026-05-02
+status: settled
+chosen: One .md file per note in a synced folder
+ruled_out: [Notion, Airtable]
+why: No lock-in; still readable in ten years
+tags: [tooling]
+---
+
+# Use plain markdown for all client notes
+
+We chose files over a database because the notes should outlive the app.</pre>
+        <p>Every field is optional. A note with no frontmatter at all is still perfectly native — the extra keys just let the People, Decisions and Journal lenses render a fuller card. Leave out anything you don't have; never let the model invent values.</p>
+
+        <h2 id="s4">The base prompt (copy, then adapt)</h2>
+        <p>This is the template. Paste it into Claude Cowork (pointed at your two folders) or any capable LLM, fill in the three <code class="mono">{{...}}</code> placeholders, and adjust the folder list to taste.</p>
+        <div class="prompt-card reveal">
+          <div class="prompt-head">
+            <span class="sec-label">Base prompt · migrate to Fount OS</span>
+            <button class="prompt-copy" type="button" data-copy-target="migrate-prompt">Copy</button>
+          </div>
+          <pre class="prompt-pre" id="migrate-prompt">You are helping me migrate my notes from {{SOURCE_APP}} into the "Fount OS" structure.
+Fount OS is not a database — it's an ordinary folder of Markdown files that I own. Your
+job is to convert my export into that shape faithfully and without ever touching my
+originals.
+
+## Inputs
+- SOURCE (read-only, never modify): {{SOURCE_FOLDER}}
+- DESTINATION (write only here — an empty, separate folder): {{DEST_FOLDER}}
+
+## Rule 0 — never touch my originals
+Treat SOURCE as read-only. Write only inside DESTINATION. If DESTINATION is inside
+SOURCE, SOURCE is inside DESTINATION, or they are the same folder — stop and ask me to
+choose a separate empty folder. Never move, rename, or delete anything in SOURCE.
+
+## File format (match this exactly)
+- One Markdown file per note. UTF-8, LF line endings, `.md` extension.
+- The body is plain CommonMark. Don't invent HTML or custom syntax.
+- Optional YAML frontmatter between two `---` lines at the very top. Keep it simple:
+  - Only plain scalars (text, whole numbers, true/false) and lists of text.
+  - No nested objects ( { } ), no block scalars ( | or &gt; ).
+  - Write dates as plain strings, YYYY-MM-DD (e.g. 2026-07-19) — never as typed YAML dates.
+  - If a note already has frontmatter, keep every existing key in its original order,
+    untouched. Only add keys — never reorder or drop keys you don't recognise.
+- Links between notes use Obsidian-style wikilinks: [[Note title]] or [[Note title|shown text]].
+  No [[Note#heading]], and no file paths inside [[ ]].
+
+## Folders (sensible defaults — adapt them to me)
+Place each note in the matching folder and keep filenames human-readable:
+
+    00-Inbox/                  anything you can't confidently classify (fallback)
+    10-People/                 one file per person or company
+    12-Meetings/               meeting notes
+    30-Projects/               one file (or subfolder) per project
+    50-Journal/Entries/        dated journal entries
+    60-Decisions/              one file per decision
+    80-System/Tasks/TASKS.md   a single running checklist of open tasks
+    99-Archive/                anything clearly old or inactive
+
+If a source grouping doesn't map to one of these, keep it as its own top-level folder
+using its existing (sanitised) name. Don't force-fit, and don't invent extra folders.
+
+## Optional frontmatter per type (only when the info actually exists)
+- People (10-People):   type: person · name · company · role · email · status · tags · created
+- Decisions (60-Decisions): type: decision · title · decided (YYYY-MM-DD) · status · chosen · ruled_out (list) · why · tags
+- Journal (50-Journal/Entries): type: journal · title · created (YYYY-MM-DD) · entry_type (daily | weekly | insight | quote | photo) · tags · mood
+- Tasks: collect open to-dos as GitHub-style checkboxes in 80-System/Tasks/TASKS.md —
+  "- [ ] task" / "- [x] done". Keep any [[links]] on the line.
+Leave out any field you don't have. Never fabricate values.
+
+## Links &amp; collisions
+1. First build an index of every note filename you will create. Only turn a reference
+   into a [[Wikilink]] when its target exists in that index. If it doesn't resolve, keep
+   the original text/link as-is and add it to an "unresolved links" list — never silently
+   drop a link.
+2. Never overwrite. If two notes would land on the same path, keep both: add -2, -3 … to
+   the filename and record the rename.
+3. If {{SOURCE_APP}} is Notion: strip Notion's 32-character hex id from every filename,
+   folder name, and link target (e.g. "Roadmap 1a2b3c…7890.md" becomes "Roadmap.md"), and
+   carry attachments across at their cleaned path so image links still resolve.
+
+## How to run — propose first, then apply
+1. Scan SOURCE and show me a PLAN: how many notes land in each folder, plus any name
+   collisions or unresolved links you expect. Write nothing yet.
+2. Wait for my "go".
+3. On "go", create the files in DESTINATION.
+4. Then write DESTINATION/MIGRATION-REPORT.md: notes written, count per folder, files
+   skipped, every rename, and the full list of unresolved links.
+
+Start with step 1.</pre>
+        </div>
+        <p><strong>What to change:</strong> the three <code class="mono">{{...}}</code> placeholders (your source app, and the two folder paths), and the folder list if your work doesn't look like people-projects-journal. Everything else is what keeps the output faithful — leave it in unless you know why you're removing it.</p>
+
+        <h2 id="s5">Run it in three passes</h2>
+        <p>The prompt is written to <strong>propose before it writes</strong> — the same "preview, then confirm" beat the app uses. Don't skip it.</p>
+        <p><strong>1 · Plan.</strong> The model scans your export and reports how many notes land where, plus the collisions and unresolved links it expects. Read this. If half your notes are heading for <code class="mono">00-Inbox</code>, your folders need adjusting — fix the prompt, not the output.</p>
+        <p><strong>2 · Spot-check.</strong> Ask it to fully convert just <em>one</em> folder first. Open a couple of the resulting <code class="mono">.md</code> files in any text editor. Frontmatter clean? Links look like <code class="mono">[[wikilinks]]</code>? Body intact? Good.</p>
+        <p><strong>3 · Apply &amp; verify.</strong> Give the "go", let it write the rest, then open <code class="mono">MIGRATION-REPORT.md</code>. It lists everything written, everything skipped, every renamed collision, and every link that couldn't be resolved. That last list is your punch-list — usually notes that referenced something you hadn't exported.</p>
+
+        <h2 id="s6">Notes for your app</h2>
+        <p><strong>Notion.</strong> Export as <em>Markdown &amp; CSV</em> and hand the model the zip (or the unzipped folder). Two things matter: Notion appends a long hex id to every filename — the prompt strips it — and Notion <em>databases</em> come out as CSV, which the model should expand into one note per row, columns becoming frontmatter.</p>
+        <p><strong>Obsidian.</strong> You may not need this at all: an Obsidian vault is already plain markdown with wikilinks, so you can point Fount OS straight at it and it reads in place. Only run a migration if you actually want to <em>re-shape</em> the folders — and if so, point the source at a copy of the vault.</p>
+        <p><strong>Apple Notes.</strong> There's no clean markdown export, so notes arrive as rich text or HTML. Add a line to the prompt asking the model to flatten formatting to plain CommonMark. There's little metadata to preserve, so this is mostly about clean bodies and sensible titles.</p>
+        <p><strong>Evernote.</strong> Export a notebook as <code class="mono">.enex</code>. Tell the model to split it into one note per entry and lift the title, created date and tags from the ENEX into frontmatter. Attachments should be written alongside their note and linked.</p>
+        <p><strong>Capacities &amp; Reflect.</strong> Both export markdown. Their objects and backlinks map naturally onto files and <code class="mono">[[wikilinks]]</code> — the base prompt handles them as-is; just name the app in the placeholder.</p>
+
+        <h2 id="s7">Open it in Fount OS</h2>
+        <p>Point Fount OS at your new folder. It indexes in place — the files stay exactly where they are — and the Lenses read the folders you built: People becomes a directory, Journal a timeline, Decisions a log. If a folder doesn't light up the way you expected, it's a folder-placement thing, not a broken file; move the notes and re-open.</p>
+        <p>A closing note on privacy, since it's the point of doing this yourself. When you run the migration in a local or on-device model, your notes never leave your machine. Fount itself keeps its everyday work — search, indexing, Lenses — on-device by default, and only reaches for a cloud model when you explicitly ask. Choosing to migrate by hand, with a model you control, is the same principle applied one step earlier.</p>
+
+      </div>
+
+      <div class="reveal" style="margin-top: 40px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; border-top: 1px solid var(--border); padding-top: 24px;">
+        <a class="tlink" href="/en/academy.html">← Back to the Academy</a>
+        <a class="tlink" href="/en/features/lenses.html">How Lenses read your folders →</a>
+      </div>
+
+      <div class="reveal paper-card" style="margin-top: 40px; padding: clamp(24px, 3.5vw, 36px); background: var(--surface-muted); text-align: center;">
+        <div class="sec-label" style="margin-bottom: 12px;">Rather not do it by hand?</div>
+        <h2 class="h3">Fount OS has this built in.</h2>
+        <p class="body-copy" style="max-width: 520px; margin: 14px auto 0;">The in-app importer runs this same migration for you — preview first, your originals never touched. This guide is here for when you want to steer it yourself.</p>
+        <a class="btn" href="/en/#waitlist" style="margin-top: 22px;">Join the waitlist</a>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="sitefooter"><div class="sitefooter-inner"><span style="color: var(--fg-subtle);"><svg width="26" height="20" viewBox="802 592 446 348" fill="currentColor" aria-hidden="true" style="display: block; flex-shrink: 0;"><path d="M911.706 607.386C945.676 604.068 987.294 624.662 1006.56 652.412C1026.94 681.785 1038.3 657.41 1055.38 640.153C1098.4 596.683 1165.98 595.569 1208.95 640.076C1245.97 678.423 1242.12 714.693 1241.76 763.257C1230.54 763.205 1181.49 764.377 1175.84 761.677C1149.53 749.115 1181.44 707.451 1138.87 691.493C1110.15 688.83 1099.18 712.685 1081.96 729.773C1066.97 744.872 1046.46 753.189 1025.19 752.795C987.433 752.352 971.032 734.236 948.794 707.985C929.81 685.575 893.637 686.051 888.311 720.184C886.006 734.956 890.932 760.838 870.549 762.962C850.511 764.064 829.189 763.398 808.851 763.332C808.544 719.61 805.225 684.94 835.275 647.884C855.332 623.151 880.434 610.575 911.706 607.386Z"></path><path d="M809.011 779.303C827.588 779.334 846.528 778.795 865.04 779.17C900.671 778.59 876.864 824.231 897.406 840.737C928.13 865.425 951.368 827.54 967.441 811.54C982.871 795.904 1004 787.219 1025.96 787.482C1063.28 787.834 1079.45 806.702 1101.78 832.433C1118.75 851.974 1150.19 856.61 1161.03 827.826C1168.08 809.106 1155.63 779.552 1184.98 779.208C1203.82 778.841 1222.81 779.216 1241.64 779.341C1242.04 807.207 1243.56 825.887 1236.26 853.254C1204.85 939.149 1107.26 959.48 1045.94 890.867C1039.57 883.74 1034.18 875.271 1024.05 873.42C1013.59 875.06 1001.08 894.164 992.816 902.21C972.33 921.861 944.864 932.549 916.484 931.913C887.264 931.407 861.092 918.876 841.185 897.844C806.376 861.066 808.084 825.814 809.011 779.303Z"></path></svg></span><a href="/en/academy.html">Academy</a><a href="/en/roadmap.html">Roadmap</a><a href="/en/compare/">Compare</a><a href="/en/manifesto.html">Manifesto</a><a href="/en/privacy.html">Privacy</a><a href="mailto:hello@fountos.com">hello@fountos.com</a><span class="made">Made in the EU.</span></div></footer>
+</div>
+<script src="/scripts/main.js" defer></script>
+<script>
+  (function () {
+    var btn = document.querySelector('.prompt-copy[data-copy-target]');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      var el = document.getElementById(btn.getAttribute('data-copy-target'));
+      if (!el) return;
+      var text = el.innerText;
+      var done = function () { var o = btn.textContent; btn.textContent = 'Copied'; setTimeout(function () { btn.textContent = o; }, 1600); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(function () { done(); });
+      } else {
+        var r = document.createRange(); r.selectNodeContents(el);
+        var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+        try { document.execCommand('copy'); } catch (e) {}
+        s.removeAllRanges(); done();
+      }
+    });
+  })();
+</script>
+</body>
+</html>
